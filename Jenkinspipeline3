@@ -2,9 +2,9 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = 'emc-nodejs-app:latest'
-    DOCKERHUB_CREDENTIALS = 'dockerhub-token'
-    DOCKERHUB_REPO = 'venkiemc/emc-nodejs-app'
+    IMAGE_NAME = 'ci-docker-image:latest'
+    DOCKERHUB_CREDENTIALS = 'dockerhub-creds-token'
+    DOCKERHUB_REPO = 'reshars/ci-docker-repo'
   }
 
   stages {
