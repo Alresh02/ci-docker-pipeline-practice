@@ -1,22 +1,29 @@
 pipeline {
   agent any
-
   environment {
-    IMAGE_NAME = 'ci-docker-image:latest'
-    DOCKERHUB_CREDENTIALS = 'dockerhub-creds-token'  // your Docker Hub credentials ID in Jenkins
-    DOCKERHUB_REPO = 'reshars/ci-docker-repo'  // replace with your Docker Hub repo
+    IMAGE_NAME = "ci-docker-image"
+    DOCKER_REPO = "reshars/ci-docker-repo"
+    TAG = "latest"
   }
-
   stages {
-    stage('Checkout Code') {
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+
+    stage('Ensure no bad docker creds') {
       steps {
-        git branch: 'main', url: 'https://github.com/Alresh02/ci-docker-pipeline-practice.git'
+        bat """
+          rem attempt logout to clear any bad saved creds (ignore errors)
+          docker logout || echo Logout returned non-zero, continuing...
+        """
       }
     }
 
     stage('Build Docker Image') {
       steps {
-        bat "docker build -t %IMAGE_NAME% ."
+        bat """
+          docker build -t %IMAGE_NAME%:%TAG% .
+        """
       }
     }
 
@@ -28,14 +35,18 @@ pipeline {
 
     stage('Docker Login and Push') {
       steps {
-        withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+        // Use Jenkins stored credentials (username/password where password is Docker Hub token)
+        withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           bat """
-            docker login -u %DOCKER_USER% -p %DOCKER_PASS%
-            docker tag %IMAGE_NAME% %DOCKERHUB_REPO%:latest
-            docker push %DOCKERHUB_REPO%:latest
+            echo %DOCKER_PASS% | docker login --username %DOCKER_USER% --password-stdin
+            docker tag %IMAGE_NAME%:%TAG% %DOCKER_USER%/%DOCKER_REPO%:%TAG%
+            docker push %DOCKER_USER%/%DOCKER_REPO%:%TAG%
           """
         }
       }
     }
+  }
+  post {
+    always { echo "Pipeline finished." }
   }
 }
