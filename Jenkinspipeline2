@@ -4,7 +4,7 @@ pipeline {
   environment {
     IMAGE_NAME = 'ci-docker-image:latest'
     DOCKERHUB_CREDENTIALS = 'dockerhub-creds-token'  // your Docker Hub credentials ID in Jenkins
-    DOCKERHUB_REPO = 'reshars/cicd-sonar-docker'  // replace with your Docker Hub repo
+    DOCKERHUB_REPO = 'reshars/ci-docker-repo'  // replace with your Docker Hub repo
   }
 
   stages {
