@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     IMAGE_NAME = 'ci-docker-image:latest'
-    DOCKERHUB_CREDENTIALS = 'dockerhub-creds-token'
+    DOCKERHUB_CREDENTIALS = 'dockerhub-token'
     DOCKERHUB_REPO = 'reshars/ci-docker-repo'
   }
 
